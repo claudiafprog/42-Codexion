@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:55:53 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/12 15:30:54 by claudiaferrei    ###   ########.fr       */
+/*   Updated: 2026/10/13 11:48:23 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ int	read_input(int argc, char	**argv)
 	return (1);
 }
 
-void	convert_input(int argc, char	**argv, t_config *config)
+int	convert_input(int argc, char	**argv, t_config *config)
 {
 	(void)argc;
 	config->number_of_coders = ft_atol(argv[1]);
@@ -85,15 +85,20 @@ void	convert_input(int argc, char	**argv, t_config *config)
 	config->number_of_compiles_required = ft_atol(argv[6]);
 	config->dongle_cooldown = ft_atol(argv[7]);
 	config->scheduler = argv[8];
-}
-
-int	boundaries_validation(t_config *config)
-{
 	if (config->number_of_coders <= 0 || config->time_to_burnout <= 0
 		|| config->time_to_compile <= 0 || config->time_to_debug <= 0
 		|| config->time_to_refactor <= 0
 		|| config->number_of_compiles_required < 0
 		|| config->dongle_cooldown < 0)
+		return (0);
+	return (1);
+}
+
+int	clean_input(int argc, char	**argv, t_config *config)
+{
+	if (!read_input(argc, argv, &config))
+		return (0);
+	if (!convert_input(argc, argv, &config))
 		return (0);
 	return (1);
 }
