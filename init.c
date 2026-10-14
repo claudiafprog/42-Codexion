@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 10:05:47 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/13 13:29:30 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/14 13:50:22 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,17 +58,20 @@ t_coder	*init_coders(t_data	*data)
 int	init_all(t_data *data, int argc, char **argv)
 {
 	if (!clean_input(argc, argv, &data->config))
-		return (0);
+		return (printf("Error: Insert valid input arguments.\n"), 0);
 	data->dongles = init_dongles(data->config.number_of_coders);
 	if (!data->dongles)
 	{
 		free(data->coders);
 		return (0);
 	}
+	pthread_mutex_init(&data->config.lock, NULL);
+	pthread_mutex_init(&data->config.print_lock, NULL);
 	data->coders = init_coders(data);
 	if (!data->coders)
 	{
 		free_dongles(data->dongles, data->config.number_of_coders);
+		pthread_mutex_destroy(&data->config.lock);
 		return (0);
 	}
 	return (1);

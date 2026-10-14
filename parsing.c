@@ -6,12 +6,11 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:55:53 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/13 11:48:23 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/14 11:51:05 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <string.h>
 
 int	is_valid_number(char	*str)
 {
@@ -85,6 +84,7 @@ int	convert_input(int argc, char	**argv, t_config *config)
 	config->number_of_compiles_required = ft_atol(argv[6]);
 	config->dongle_cooldown = ft_atol(argv[7]);
 	config->scheduler = argv[8];
+	config->simulation_over = 0;
 	if (config->number_of_coders <= 0 || config->time_to_burnout <= 0
 		|| config->time_to_compile <= 0 || config->time_to_debug <= 0
 		|| config->time_to_refactor <= 0
@@ -96,9 +96,9 @@ int	convert_input(int argc, char	**argv, t_config *config)
 
 int	clean_input(int argc, char	**argv, t_config *config)
 {
-	if (!read_input(argc, argv, &config))
+	if (!read_input(argc, argv))
 		return (0);
-	if (!convert_input(argc, argv, &config))
+	if (!convert_input(argc, argv, config))
 		return (0);
 	return (1);
 }
