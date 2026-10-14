@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/13 15:25:23 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/14 14:33:28 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <sys/time.h>
 # include <unistd.h>
 
-/* parsig */
+/* system structs */
 typedef struct s_config
 {
 	long			number_of_coders;
@@ -32,16 +32,11 @@ typedef struct s_config
 	long			dongle_cooldown;
 	char			*scheduler;
 	long			start_time;
-	bool			simulation_over;
+	long			simulation_over;
 	pthread_mutex_t	lock;
+	pthread_mutex_t	print_lock;
 }	t_config;
 
-int		read_input(int argc, char	**argv, t_config *config);
-void	convert_input(int argc, char	**argv, t_config *config);
-int		clean_input(int argc, char	**argv, t_config *config);
-/* time */
-long	get_time_in_ms(void);
-/* init */
 typedef struct s_coder
 {
 	long			id;
@@ -54,11 +49,23 @@ typedef struct s_coder
 
 typedef struct s_data
 {
-	t_config		*config;
+	t_config		config;
 	t_coder			*coders;
 	pthread_mutex_t	*dongles;
 }	t_data;
+
+/* parsing */
+int		read_input(int argc, char	**argv);
+int		convert_input(int argc, char	**argv, t_config *config);
+int		clean_input(int argc, char	**argv, t_config *config);
+/* time */
+long	get_time_in_ms(void);
+/* init */
 int		init_all(t_data	*data, int argc, char	**argv);
 /* free */
 void	free_dongles(pthread_mutex_t	*dongles, int count);
+void	free_all(t_data *data, int count);
+/* simulation */
+void	*coder_routine(void *arg);
+void	simulation_monitor(t_data	*data);
 #endif
