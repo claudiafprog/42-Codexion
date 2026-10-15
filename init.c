@@ -6,28 +6,36 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 10:05:47 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/14 13:50:22 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/15 12:15:40 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-pthread_mutex_t	*init_dongles(int number_of_coders)
+t_dongle	*init_dongles(int number_of_coders)
 {
-	pthread_mutex_t	*dongles;
-	int				i;
+	t_dongle	*dongles;
+	int			i;
 
-	dongles = malloc(sizeof(pthread_mutex_t) * number_of_coders);
+	dongles = malloc(sizeof(t_dongle) * number_of_coders);
 	if (!dongles)
 		return (NULL);
 	i = 0;
 	while (i < number_of_coders)
 	{
-		if (pthread_mutex_init(&dongles[i], NULL) != 0)
+		if (pthread_mutex_init(&dongles[i].dongle_lock, NULL) != 0)
 		{
 			free_dongles(dongles, i);
 			return (NULL);
 		}
+		if (pthread_cond_init(&dongles[i].cond, NULL) != 0)
+		{
+			pthread_mutex_destroy(&dongles[i].dongle_lock);
+			free_dongles(dongles, i);
+			return (NULL);
+		}
+		dongles[i].last_release_time = 0;
+		dongles[i].is_taken = 0;
 		i++;
 	}
 	return (dongles);
@@ -61,17 +69,15 @@ int	init_all(t_data *data, int argc, char **argv)
 		return (printf("Error: Insert valid input arguments.\n"), 0);
 	data->dongles = init_dongles(data->config.number_of_coders);
 	if (!data->dongles)
-	{
-		free(data->coders);
 		return (0);
-	}
-	pthread_mutex_init(&data->config.lock, NULL);
+	pthread_mutex_init(&data->config.simulation_lock, NULL);
 	pthread_mutex_init(&data->config.print_lock, NULL);
 	data->coders = init_coders(data);
 	if (!data->coders)
 	{
 		free_dongles(data->dongles, data->config.number_of_coders);
-		pthread_mutex_destroy(&data->config.lock);
+		pthread_mutex_destroy(&data->config.simulation_lock);
+		pthread_mutex_destroy(&data->config.print_lock);
 		return (0);
 	}
 	return (1);
