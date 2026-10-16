@@ -1,29 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   simulaton.c                                        :+:      :+:    :+:   */
+/*   simulation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 13:46:11 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/15 15:50:46 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/16 12:31:21 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-int	check_simulation_over(t_coder *coder)
-{
-	int	status;
-
-	pthread_mutex_lock(&coder->config->simulation_lock);
-	status = coder->config->simulation_over;
-	pthread_mutex_unlock(&coder->config->simulation_lock);
-	return (status);
-}
-
 void	print_status(t_coder	*coder, char	*status)
 {
+	if (check_simulation_over(coder) && strcmp(status, "burned out") != 0)
+		return ;
 	pthread_mutex_lock(&coder->config->print_lock);
 	printf("%ld %ld %s\n",
 		get_time_in_ms() - coder->config->start_time, coder->id, status);
@@ -33,32 +25,33 @@ void	print_status(t_coder	*coder, char	*status)
 void	simulation_monitor(t_data	*data)
 {
 	int		i;
-	int		j;
 	long	time;
+	int		all_compiled;
 
 	while (1)
 	{
 		i = 0;
+		all_compiled = 1;
 		while (i < data->config.number_of_coders)
 		{
 			time = get_time_in_ms() - data->coders[i].last_compile_time;
 			if (time > data->config.time_to_burnout)
 			{
-				pthread_mutex_lock(&data->config.simulation_lock);
-				data->config.simulation_over = 1;
-				pthread_mutex_unlock(&data->config.simulation_lock);
-				j = 0;
-				while (j < data->config.number_of_coders)
-				{
-					pthread_mutex_lock(&data->dongles[j].dongle_lock);
-                    pthread_cond_broadcast(&data->dongles[j].cond);
-                    pthread_mutex_unlock(&data->dongles[j].dongle_lock);
-                    j++;
-                }
+				finish_simulation(data);
 				print_status(&data->coders[i], "burned out");
 				return ;
 			}
+			if (data->config.number_of_compiles_required > 0
+				&& data->coders[i].compiles_count
+				< data->config.number_of_compiles_required)
+				all_compiled = 0;
 			i++;
+		}
+		if (data->config.number_of_compiles_required > 0
+			&& all_compiled)
+		{
+			finish_simulation(data);
+			return ;
 		}
 		usleep(1000);
 	}
@@ -66,11 +59,17 @@ void	simulation_monitor(t_data	*data)
 
 void	take_dongle(t_coder *coder, t_dongle *dongle)
 {
+	long	time_since_release;
+
 	pthread_mutex_lock(&dongle->dongle_lock);
-	while (!check_simulation_over(coder) && (dongle->is_taken
-		|| (get_time_in_ms() - dongle->last_release_time
-			< coder->config->dongle_cooldown)))
+	while (!check_simulation_over(coder))
+	{
+		time_since_release = get_time_in_ms() - dongle->last_release_time;
+		if (!dongle->is_taken && time_since_release
+			>= coder->config->dongle_cooldown)
+			break ;
 		pthread_cond_wait(&dongle->cond, &dongle->dongle_lock);
+	}
 	if (check_simulation_over(coder))
 	{
 		pthread_mutex_unlock(&dongle->dongle_lock);
@@ -96,13 +95,7 @@ void	*coder_routine(void *arg)
 	coder = (t_coder *)arg;
 	coder->last_compile_time = get_time_in_ms();
 	if (coder->config->number_of_coders == 1)
-	{
-		pthread_mutex_lock(&coder->left_dongle->dongle_lock);
-		print_status(coder, "has taken a dongle");
-		usleep(coder->config->time_to_burnout * 1000);
-		pthread_mutex_unlock(&coder->left_dongle->dongle_lock);
-		return (NULL);
-	}
+		return (one_coder(coder), NULL);
 	while (!check_simulation_over(coder))
 	{
 		take_dongle(coder, coder->left_dongle);
@@ -119,6 +112,6 @@ void	*coder_routine(void *arg)
 		print_status(coder, "is refactoring");
 		usleep(coder->config->time_to_refactor * 1000);
 	}
+	coder->compiles_count++;
 	return (NULL);
 }
-

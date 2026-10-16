@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/15 12:39:20 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/16 11:04:53 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,12 @@ int		init_all(t_data	*data, int argc, char	**argv);
 /* free */
 void	free_dongles(t_dongle	*dongles, int count);
 void	free_all(t_data *data, int count);
+/* monitoring */
+int		check_simulation_over(t_coder *coder);
+void	finish_simulation(t_data	*data);
+void	one_coder(t_coder	*coder);
 /* simulation */
+void	print_status(t_coder	*coder, char	*status);
 void	*coder_routine(void *arg);
 void	simulation_monitor(t_data	*data);
 #endif
