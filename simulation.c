@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 13:46:11 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/16 12:31:21 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/19 11:10:24 by claudiaferrei    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,9 @@ void	simulation_monitor(t_data	*data)
 		all_compiled = 1;
 		while (i < data->config.number_of_coders)
 		{
+			pthread_mutex_lock(&data->config.simulation_lock);
 			time = get_time_in_ms() - data->coders[i].last_compile_time;
+			pthread_mutex_unlock(&data->config.simulation_lock);
 			if (time > data->config.time_to_burnout)
 			{
 				finish_simulation(data);
@@ -93,7 +95,9 @@ void	*coder_routine(void *arg)
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
+	pthread_mutex_lock(&coder->config->simulation_lock);
 	coder->last_compile_time = get_time_in_ms();
+	pthread_mutex_unlock(&coder->config->simulation_lock);
 	if (coder->config->number_of_coders == 1)
 		return (one_coder(coder), NULL);
 	while (!check_simulation_over(coder))
@@ -102,7 +106,9 @@ void	*coder_routine(void *arg)
 		print_status(coder, "has taken a dongle");
 		take_dongle(coder, coder->right_dongle);
 		print_status(coder, "has taken a dongle");
+		pthread_mutex_lock(&coder->config->simulation_lock);
 		coder->last_compile_time = get_time_in_ms();
+		pthread_mutex_unlock(&coder->config->simulation_lock);
 		print_status(coder, "is compiling");
 		usleep(coder->config->time_to_compile * 1000);
 		release_dongle(coder->left_dongle);

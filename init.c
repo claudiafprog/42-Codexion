@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 10:05:47 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/15 12:15:40 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/19 10:34:05 by claudiaferrei    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ t_dongle	*init_dongles(int number_of_coders)
 	dongles = malloc(sizeof(t_dongle) * number_of_coders);
 	if (!dongles)
 		return (NULL);
+	memset(dongles, 0, sizeof(t_dongle) * number_of_coders);
 	i = 0;
 	while (i < number_of_coders)
 	{
@@ -49,6 +50,7 @@ t_coder	*init_coders(t_data	*data)
 	coders = malloc(sizeof(t_coder) * data->config.number_of_coders);
 	if (!coders)
 		return (NULL);
+	memset(coders, 0, sizeof(t_coder) * data->config.number_of_coders);
 	i = 0;
 	while (i < data->config.number_of_coders)
 	{
