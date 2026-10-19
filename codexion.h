@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/16 11:04:53 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/19 16:42:25 by claudiaferrei    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 # include <string.h>
 # include <sys/time.h>
 # include <unistd.h>
+
+# define MY_INT_MAX 2147483647
 
 /* system structs */
 typedef struct s_config
