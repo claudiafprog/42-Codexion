@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/19 16:42:25 by claudiaferrei    ###   ########.fr       */
+/*   Updated: 2026/10/20 15:51:44 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,22 @@ typedef struct s_config
 	pthread_mutex_t	print_lock;
 }	t_config;
 
+typedef struct s_queue
+{
+	long			id;
+	long			arrival_time;
+	long			deadline;
+	pthread_cond_t	cond;
+	struct s_queue	*next;
+}	t_queue;
+
 typedef struct s_dongle
 {
 	pthread_mutex_t	dongle_lock;
 	pthread_cond_t	cond;
 	long			last_release_time;
 	long			is_taken;
+	t_queue			*wait_queue;
 }	t_dongle;
 
 typedef struct s_coder
@@ -67,9 +77,12 @@ typedef struct s_data
 
 /* parsing */
 int		clean_input(int argc, char	**argv, t_config *config);
-/* time */
+/* scheduler / time */
 long	get_time_in_ms(void);
+t_queue	*chosen_scheduler(t_config	*config, t_queue	*head,
+			t_queue	*new_node);
 /* init */
+t_queue	*init_wait_node(t_coder *coder);
 int		init_all(t_data	*data, int argc, char	**argv);
 /* free */
 void	free_dongles(t_dongle	*dongles, int count);

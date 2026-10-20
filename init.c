@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 10:05:47 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/19 10:34:05 by claudiaferrei    ###   ########.fr       */
+/*   Updated: 2026/10/20 15:52:12 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,22 @@ t_coder	*init_coders(t_data	*data)
 		i++;
 	}
 	return (coders);
+}
+
+t_queue	*init_wait_node(t_coder	*coder)
+{
+	t_queue	*new_node;
+
+	new_node = malloc(sizeof(t_queue));
+	if (!new_node)
+		return (NULL);
+	memset(new_node, 0, sizeof(t_queue));
+	new_node->id = coder->id;
+	new_node->arrival_time = get_time_in_ms();
+	new_node->deadline = coder->last_compile_time
+		+ coder->config->time_to_burnout;
+	pthread_cond_init(&new_node->cond, NULL);
+	return (new_node);
 }
 
 int	init_all(t_data *data, int argc, char **argv)

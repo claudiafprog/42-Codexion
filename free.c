@@ -6,11 +6,26 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 13:14:54 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/15 12:17:17 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/20 15:48:57 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+
+void	free_wait_queue(t_queue	*head)
+{
+	t_queue	*curr;
+	t_queue	*next;
+
+	curr = head;
+	while (curr)
+	{
+		next = curr->next;
+		pthread_cond_destroy(&curr->cond);
+		free(curr);
+		curr = next;
+	}
+}
 
 void	free_dongles(t_dongle	*dongles, int count)
 {
@@ -21,6 +36,7 @@ void	free_dongles(t_dongle	*dongles, int count)
 	i = 0;
 	while (i < count)
 	{
+		free_wait_queue(dongles[i].wait_queue);
 		pthread_mutex_destroy(&dongles[i].dongle_lock);
 		pthread_cond_destroy(&dongles[i].cond);
 		i++;

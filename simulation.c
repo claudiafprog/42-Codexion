@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 13:46:11 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/19 11:10:24 by claudiaferrei    ###   ########.fr       */
+/*   Updated: 2026/10/20 15:58:09 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,9 @@ void	simulation_monitor(t_data	*data)
 void	take_dongle(t_coder *coder, t_dongle *dongle)
 {
 	long	time_since_release;
+	t_queue	*node;
 
+	node = NULL;
 	pthread_mutex_lock(&dongle->dongle_lock);
 	while (!check_simulation_over(coder))
 	{
@@ -70,6 +72,12 @@ void	take_dongle(t_coder *coder, t_dongle *dongle)
 		if (!dongle->is_taken && time_since_release
 			>= coder->config->dongle_cooldown)
 			break ;
+		if (!node)
+		{
+			node = init_wait_node(coder);
+			dongle->wait_queue = chosen_scheduler(coder->config,
+					dongle->wait_queue, node);
+		}
 		pthread_cond_wait(&dongle->cond, &dongle->dongle_lock);
 	}
 	if (check_simulation_over(coder))
@@ -83,10 +91,19 @@ void	take_dongle(t_coder *coder, t_dongle *dongle)
 
 void	release_dongle(t_dongle *dongle)
 {
+	t_queue	*next_node;
+
 	pthread_mutex_lock(&dongle->dongle_lock);
 	dongle->is_taken = 0;
 	dongle->last_release_time = get_time_in_ms();
-	pthread_cond_broadcast(&dongle->cond);
+	if (dongle->wait_queue)
+	{
+		next_node = dongle->wait_queue;
+		dongle->wait_queue = dongle->wait_queue->next;
+		pthread_cond_signal(&next_node->cond);
+		pthread_cond_destroy(&next_node->cond);
+		free(next_node);
+	}
 	pthread_mutex_unlock(&dongle->dongle_lock);
 }
 
