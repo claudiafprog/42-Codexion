@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/20 15:51:44 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/21 16:13:45 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,8 +81,9 @@ int		clean_input(int argc, char	**argv, t_config *config);
 long	get_time_in_ms(void);
 t_queue	*chosen_scheduler(t_config	*config, t_queue	*head,
 			t_queue	*new_node);
+void    remove_node_from_queue(t_dongle *dongle, t_queue    *node);
 /* init */
-t_queue	*init_wait_node(t_coder *coder);
+t_queue	*init_waiting_line(t_coder *coder);
 int		init_all(t_data	*data, int argc, char	**argv);
 /* free */
 void	free_dongles(t_dongle	*dongles, int count);
