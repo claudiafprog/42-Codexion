@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/21 16:13:45 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/23 15:52:42 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,19 +81,19 @@ int		clean_input(int argc, char	**argv, t_config *config);
 long	get_time_in_ms(void);
 t_queue	*chosen_scheduler(t_config	*config, t_queue	*head,
 			t_queue	*new_node);
-void    remove_node_from_queue(t_dongle *dongle, t_queue    *node);
+void	remove_node_from_queue(t_dongle	*dongle, t_queue	*node);
 /* init */
 t_queue	*init_waiting_line(t_coder *coder);
 int		init_all(t_data	*data, int argc, char	**argv);
-/* free */
+/* tools */
 void	free_dongles(t_dongle	*dongles, int count);
 void	free_all(t_data *data, int count);
+void	print_status(t_coder	*coder, char	*status);
 /* monitoring */
 int		check_simulation_over(t_coder *coder);
 void	finish_simulation(t_data	*data);
 void	one_coder(t_coder	*coder);
 /* simulation */
-void	print_status(t_coder	*coder, char	*status);
 void	*coder_routine(void *arg);
 void	simulation_monitor(t_data	*data);
 #endif

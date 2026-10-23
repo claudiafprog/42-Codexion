@@ -6,58 +6,11 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 13:46:11 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/20 15:58:09 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/23 15:58:35 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-
-void	print_status(t_coder	*coder, char	*status)
-{
-	if (check_simulation_over(coder) && strcmp(status, "burned out") != 0)
-		return ;
-	pthread_mutex_lock(&coder->config->print_lock);
-	printf("%ld %ld %s\n",
-		get_time_in_ms() - coder->config->start_time, coder->id, status);
-	pthread_mutex_unlock(&coder->config->print_lock);
-}
-
-void	simulation_monitor(t_data	*data)
-{
-	int		i;
-	long	time;
-	int		all_compiled;
-
-	while (1)
-	{
-		i = 0;
-		all_compiled = 1;
-		while (i < data->config.number_of_coders)
-		{
-			pthread_mutex_lock(&data->config.simulation_lock);
-			time = get_time_in_ms() - data->coders[i].last_compile_time;
-			pthread_mutex_unlock(&data->config.simulation_lock);
-			if (time > data->config.time_to_burnout)
-			{
-				finish_simulation(data);
-				print_status(&data->coders[i], "burned out");
-				return ;
-			}
-			if (data->config.number_of_compiles_required > 0
-				&& data->coders[i].compiles_count
-				< data->config.number_of_compiles_required)
-				all_compiled = 0;
-			i++;
-		}
-		if (data->config.number_of_compiles_required > 0
-			&& all_compiled)
-		{
-			finish_simulation(data);
-			return ;
-		}
-		usleep(1000);
-	}
-}
 
 void	take_dongle(t_coder *coder, t_dongle *dongle)
 {
@@ -74,7 +27,7 @@ void	take_dongle(t_coder *coder, t_dongle *dongle)
 			break ;
 		if (!node)
 		{
-			node = init_wait_node(coder);
+			node = init_waiting_line(coder);
 			dongle->wait_queue = chosen_scheduler(coder->config,
 					dongle->wait_queue, node);
 		}

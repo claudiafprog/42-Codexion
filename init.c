@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 10:05:47 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/20 15:52:12 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/10/23 15:35:03 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ t_coder	*init_coders(t_data	*data)
 	return (coders);
 }
 
-t_queue	*init_wait_node(t_coder	*coder)
+t_queue	*init_waiting_line(t_coder	*coder)
 {
 	t_queue	*new_node;
 
