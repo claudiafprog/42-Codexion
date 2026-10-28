@@ -18,7 +18,7 @@ int	main(int argc, char	**argv)
 	int		i;
 
 	if (!init_all(&data, argc, argv))
-		return (printf("Error: Initialization failed.\n"), 1);
+		return (fprintf(stderr, "Error: Initialization failed.\n"), 1);
 	data.config.start_time = get_time_in_ms();
 	i = 0;
 	while (i < data.config.number_of_coders)
