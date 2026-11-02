@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/16 10:21:20 by clferrei          #+#    #+#             */
-/*   Updated: 2026/11/02 14:16:58 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/11/02 21:58:18 by claudiaferrei    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,14 +47,14 @@ int	check_burnout(t_data	*data)
 	long	deadline;
 
 	i = 0;
-    present_moment = get_time_in_ms();
+	present_moment = get_time_in_ms();
 	while (i < data->config.number_of_coders)
 	{
 		pthread_mutex_lock(&data->config.simulation_lock);
 		deadline = data->coders[i].last_compile_time
-				+ data->config.time_to_burnout;
+			+ data->config.time_to_burnout;
 		if (present_moment >= deadline
-				&& !data->coders[i].left_dongle->is_taken)
+			&& !data->coders[i].left_dongle->is_taken)
 		{
 			pthread_mutex_unlock(&data->config.simulation_lock);
 			finish_simulation(data);

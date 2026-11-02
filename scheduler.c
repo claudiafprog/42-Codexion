@@ -6,36 +6,11 @@
 /*   By: clferrei <clferrei@student.42belgium.be    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 13:25:26 by clferrei          #+#    #+#             */
-/*   Updated: 2026/11/02 17:02:18 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/11/02 22:04:28 by claudiaferrei    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-
-long	get_next_ticket(t_config	*config)
-{
-	long	ticket;
-
-	ticket = config->next_ticket;
-	config->next_ticket++;
-	return (ticket);
-}
-
-int	is_higher_priority(t_config *config, t_node *a, t_node *b)
-{
-	if (strcmp(config->scheduler, "edf") == 0)
-	{
-		if (a->deadline < b->deadline)
-			return (1);
-		else if (a->deadline == b->deadline)
-			if (a->ticket < b->ticket)
-				return (1);
-	}
-	else if (strcmp(config->scheduler, "fifo") == 0)
-		if (a->ticket < b->ticket)
-			return (1);
-	return (0);
-}
 
 static void	heapify_up(t_heap *heap, int i, t_config *config)
 {
@@ -57,7 +32,7 @@ static void	heapify_up(t_heap *heap, int i, t_config *config)
 	}
 }
 
-static void	heapify_down(t_heap *heap, int i, t_config *config)
+static void	heapify_down(t_heap	*heap, int i, t_config	*config)
 {
 	int		left;
 	int		right;
@@ -111,20 +86,20 @@ int	heap_append_scheduled(t_heap	*heap, t_node	*new_node, t_config	*config)
 	return (1);
 }
 
-t_node  *heap_pop(t_heap    *heap, t_config *config)
+t_node	*heap_pop(t_heap	*heap, t_config	*config)
 {
-    t_node  *prio;
+	t_node	*prio;
 
-    if (heap->size == 0)
-        return (NULL);
-    prio = heap->nodes[0];
-    heap->size--;
-    if (heap->size > 0)
-    {
-        heap->nodes[0] = heap->nodes[heap->size];
-        heapify_down(heap, 0, config);
-    }
-    return (prio);
+	if (heap->size == 0)
+		return (NULL);
+	prio = heap->nodes[0];
+	heap->size--;
+	if (heap->size > 0)
+	{
+		heap->nodes[0] = heap->nodes[heap->size];
+		heapify_down(heap, 0, config);
+	}
+	return (prio);
 }
 
 void	heap_prio_remove(t_heap *heap, t_coder *coder, t_config *config)
@@ -136,7 +111,6 @@ void	heap_prio_remove(t_heap *heap, t_coder *coder, t_config *config)
 		i++;
 	if (i == heap->size)
 		return ;
-
 	heap->size--;
 	if (i < heap->size)
 	{

@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/11/02 17:00:54 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/11/02 22:07:33 by claudiaferrei    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,9 @@ typedef struct s_data
 int		clean_input(int argc, char	**argv, t_config *config);
 /* scheduler / time */
 long	get_time_in_ms(void);
-long    get_next_ticket(t_config    *config);
-int		heap_append_scheduled(t_heap	*heap, t_node	*new_node, t_config	*config);
+long	get_next_ticket(t_config	*config);
+int		heap_append_scheduled(t_heap	*heap, t_node	*new_node,
+			t_config	*config);
 t_node	*heap_pop(t_heap	*heap, t_config	*config);
 void	heap_prio_remove(t_heap	*heap, t_coder	*coder, t_config	*config);
 /* init */
@@ -107,11 +108,15 @@ void	init_destroy(t_data	*data);
 /* tools */
 void	print_status(t_coder	*coder, char	*status);
 void	one_coder(t_coder	*coder);
+int		is_higher_priority(t_config	*config, t_node	*a, t_node	*b);
 /* monitoring */
 int		check_simulation_over(t_coder *coder);
 void	finish_simulation(t_data	*data);
+void	*simulation_monitor(void	*arg);
 /* simulation */
 int		has_local_priority(t_coder	*coder);
 void	*coder_routine(void *arg);
-void	*simulation_monitor(void	*arg);
+void	release_dongles(t_coder	*coder);
+void	try_to_claim_dongles(t_coder	*coder);
+/* coders */
 #endif
