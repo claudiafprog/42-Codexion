@@ -32,7 +32,7 @@ int	is_higher_priority(t_config *config, t_node *a, t_node *b)
 				return (1);
 	}
 	else if (strcmp(config->scheduler, "fifo") == 0)
-		if (a->ticket > b->ticket)
+		if (a->ticket < b->ticket)
 			return (1);
 	return (0);
 }
