@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:55:53 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/19 16:42:03 by claudiaferrei    ###   ########.fr       */
+/*   Updated: 2026/10/29 09:46:16 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,18 +85,18 @@ int	convert_input(int argc, char	**argv, t_config *config)
 	config->dongle_cooldown = ft_atol(argv[7]);
 	config->scheduler = argv[8];
 	config->simulation_over = 0;
-	if ((config->number_of_coders <= 0 && config->number_of_coders > MY_INT_MAX)
+	if ((config->number_of_coders <= 0 || config->number_of_coders > MY_INT_MAX)
 		|| (config->time_to_burnout <= 0
-			&& config->time_to_burnout > MY_INT_MAX)
+			|| config->time_to_burnout > MY_INT_MAX)
 		|| (config->time_to_compile <= 0
-			&& config->time_to_compile > MY_INT_MAX)
-		|| (config->time_to_debug <= 0 && config->time_to_debug > MY_INT_MAX)
+			|| config->time_to_compile > MY_INT_MAX)
+		|| (config->time_to_debug <= 0 || config->time_to_debug > MY_INT_MAX)
 		|| (config->time_to_refactor <= 0
-			&& config->time_to_refactor > MY_INT_MAX)
+			|| config->time_to_refactor > MY_INT_MAX)
 		|| (config->number_of_compiles_required < 0
-			&& config->number_of_compiles_required > MY_INT_MAX)
+			|| config->number_of_compiles_required > MY_INT_MAX)
 		|| (config->dongle_cooldown < 0
-			&& config->dongle_cooldown > MY_INT_MAX))
+			|| config->dongle_cooldown > MY_INT_MAX))
 		return (0);
 	return (1);
 }

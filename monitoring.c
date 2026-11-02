@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/16 10:21:20 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/23 15:58:13 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/11/02 14:16:58 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,38 +24,44 @@ int	check_simulation_over(t_coder	*coder)
 
 void	finish_simulation(t_data	*data)
 {
-	int	i;
+	int	j;
 
 	pthread_mutex_lock(&data->config.simulation_lock);
 	data->config.simulation_over = 1;
 	pthread_mutex_unlock(&data->config.simulation_lock);
-	i = 0;
-	while (i < data->config.number_of_coders)
+	pthread_mutex_lock(&data->config.scheduler_mutex);
+	j = 0;
+	while (j < data->wait_queue.size)
 	{
-		pthread_mutex_lock(&data->dongles[i].dongle_lock);
-		pthread_cond_broadcast(&data->dongles[i].cond);
-		pthread_mutex_unlock(&data->dongles[i].dongle_lock);
-		i++;
+		if (data->wait_queue.nodes[j])
+			pthread_cond_signal(&data->wait_queue.nodes[j]->cond);
+		j++;
 	}
+	pthread_mutex_unlock(&data->config.scheduler_mutex);
 }
 
 int	check_burnout(t_data	*data)
 {
 	int		i;
-	long	time;
+	long	present_moment;
+	long	deadline;
 
 	i = 0;
+    present_moment = get_time_in_ms();
 	while (i < data->config.number_of_coders)
 	{
 		pthread_mutex_lock(&data->config.simulation_lock);
-		time = get_time_in_ms() - data->coders[i].last_compile_time;
-		pthread_mutex_unlock(&data->config.simulation_lock);
-		if (time > data->config.time_to_burnout)
+		deadline = data->coders[i].last_compile_time
+				+ data->config.time_to_burnout;
+		if (present_moment >= deadline
+				&& !data->coders[i].left_dongle->is_taken)
 		{
-			print_status(&data->coders[i], "burned out");
+			pthread_mutex_unlock(&data->config.simulation_lock);
 			finish_simulation(data);
+			print_status(&data->coders[i], "burned out");
 			return (1);
 		}
+		pthread_mutex_unlock(&data->config.simulation_lock);
 		i++;
 	}
 	return (0);
@@ -78,23 +84,29 @@ int	check_number_of_compilations(t_data	*data)
 			all_compiled = 0;
 		pthread_mutex_unlock(&data->config.simulation_lock);
 		i++;
-		if (all_compiled)
-		{
-			finish_simulation(data);
-			return (1);
-		}
+	}
+	if (all_compiled)
+	{
+		finish_simulation(data);
+		return (1);
 	}
 	return (0);
 }
 
-void	simulation_monitor(t_data	*data)
+void	*simulation_monitor(void	*arg)
 {
-	while (!check_simulation_over(data->coders))
+	t_data	*data;
+
+	data = (t_data *)arg;
+	while (1)
 	{
+		if (check_simulation_over(data->coders))
+			break ;
 		if (check_burnout(data))
-			return ;
+			break ;
 		if (check_number_of_compilations(data))
-			return ;
-		usleep(1000);
+			break ;
+		usleep(10);
 	}
+	return (NULL);
 }

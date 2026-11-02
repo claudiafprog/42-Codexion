@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/10/23 15:52:42 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/11/02 17:00:54 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 # define MY_INT_MAX 2147483647
 
 /* system structs */
+typedef struct s_data	t_data;
+
 typedef struct s_config
 {
 	long			number_of_coders;
@@ -35,18 +37,28 @@ typedef struct s_config
 	char			*scheduler;
 	long			start_time;
 	long			simulation_over;
+	long			next_ticket;
+	t_data			*data;
 	pthread_mutex_t	simulation_lock;
 	pthread_mutex_t	print_lock;
+	pthread_mutex_t	scheduler_mutex;
 }	t_config;
 
-typedef struct s_queue
+typedef struct s_node
 {
 	long			id;
 	long			arrival_time;
 	long			deadline;
+	long			ticket;
 	pthread_cond_t	cond;
-	struct s_queue	*next;
-}	t_queue;
+}	t_node;
+
+typedef struct s_heap
+{
+	t_node			**nodes;
+	int				size;
+	int				capacity;
+}	t_heap;
 
 typedef struct s_dongle
 {
@@ -54,7 +66,6 @@ typedef struct s_dongle
 	pthread_cond_t	cond;
 	long			last_release_time;
 	long			is_taken;
-	t_queue			*wait_queue;
 }	t_dongle;
 
 typedef struct s_coder
@@ -66,6 +77,8 @@ typedef struct s_coder
 	t_dongle		*left_dongle;
 	t_dongle		*right_dongle;
 	t_config		*config;
+	int				waiting;
+	t_node			*node;
 }	t_coder;
 
 typedef struct s_data
@@ -73,27 +86,32 @@ typedef struct s_data
 	t_config		config;
 	t_coder			*coders;
 	t_dongle		*dongles;
+	t_heap			wait_queue;
 }	t_data;
 
 /* parsing */
 int		clean_input(int argc, char	**argv, t_config *config);
 /* scheduler / time */
 long	get_time_in_ms(void);
-t_queue	*chosen_scheduler(t_config	*config, t_queue	*head,
-			t_queue	*new_node);
-void	remove_node_from_queue(t_dongle	*dongle, t_queue	*node);
+long    get_next_ticket(t_config    *config);
+int		heap_append_scheduled(t_heap	*heap, t_node	*new_node, t_config	*config);
+t_node	*heap_pop(t_heap	*heap, t_config	*config);
+void	heap_prio_remove(t_heap	*heap, t_coder	*coder, t_config	*config);
 /* init */
-t_queue	*init_waiting_line(t_coder *coder);
+t_node	*init_waiting_line(t_coder	*coder);
 int		init_all(t_data	*data, int argc, char	**argv);
-/* tools */
+/* free */
 void	free_dongles(t_dongle	*dongles, int count);
 void	free_all(t_data *data, int count);
+void	init_destroy(t_data	*data);
+/* tools */
 void	print_status(t_coder	*coder, char	*status);
+void	one_coder(t_coder	*coder);
 /* monitoring */
 int		check_simulation_over(t_coder *coder);
 void	finish_simulation(t_data	*data);
-void	one_coder(t_coder	*coder);
 /* simulation */
+int		has_local_priority(t_coder	*coder);
 void	*coder_routine(void *arg);
-void	simulation_monitor(t_data	*data);
+void	*simulation_monitor(void	*arg);
 #endif
