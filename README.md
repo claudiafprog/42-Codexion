@@ -41,7 +41,7 @@ make re
 ./codexion [number_of_coders] [time_to_burnout] [time_to_compile] [time_to_debug] [time_to_refactor] [number_of_compiles_required] [dongle_cooldown] [scheduler]
 ```
 
-# Parameter Breakdown:
+## Parameter Breakdown:
 
   1.  number_of_coders: Number of coders and matching dongles (≥ 1).
 
@@ -59,14 +59,14 @@ make re
 
   8.  scheduler: Scheduling strategy (fifo or edf).
 
-# Example Usage:
+## Example Usage:
 
 ```bash
 ./codexion 5 3000 200 200 200 10 800 fifo
 ./codexion 5 3000 200 200 200 10 800 edf
 ```
 
-# Blocking Cases Handled
+## Blocking Cases Handled
 
 The implementation addresses several concurrency challenges to ensure deterministic execution and clean termination:
 
@@ -96,11 +96,11 @@ The implementation addresses several concurrency challenges to ensure determinis
 
     -    When number_of_coders == 1, a coder cannot acquire two dongles. Handled gracefully via one_coder(), taking the available single dongle and waiting until burnout without crashing or hanging indefinitely.
 
-# Thread Synchronization Mechanisms
+## Thread Synchronization Mechanisms
 
 The implementation coordinates worker threads (coders) and the supervisor thread (simulation_monitor) using POSIX threading primitives:
 
-## Primitives Used
+### Primitives Used
 
 *    pthread_mutex_t:
 
@@ -116,7 +116,7 @@ The implementation coordinates worker threads (coders) and the supervisor thread
 
     -    node->cond & dongle->cond: Initialized per node/dongle to support condition-based sleeping and clean thread waking during simulation termination (finish_simulation()).
 
-## Communication & Race Condition Prevention
+### Communication & Race Condition Prevention
 
 *    Thread-Safe State Reads:
 
@@ -130,8 +130,8 @@ The implementation coordinates worker threads (coders) and the supervisor thread
 
     -    When a simulation finishes (either by burnout or completion), finish_simulation() signals all waiting threads while holding scheduler_mutex, ensuring no thread remains blocked on a condition variable or locked mutex during cleanup (free_all()).
 
-# Resources
-## References
+## Resources
+### References
 
 *    POSIX Threads Programming: IEEE Std 1003.1-2017 / Linux man pages (pthread_mutex_lock, pthread_cond_wait).
 
@@ -139,7 +139,7 @@ The implementation coordinates worker threads (coders) and the supervisor thread
 
 *    The Dining Philosophers Problem: Edsger W. Dijkstra (1965) - Resource allocation and deadlock prevention techniques.
 
-## AI Usage Disclaimer
+### AI Usage Disclaimer
 
 Artificial Intelligence (LLM assistance) was utilized during the development of this project for specific tasks:
 
