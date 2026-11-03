@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/13 13:14:54 by clferrei          #+#    #+#             */
-/*   Updated: 2026/11/02 22:05:33 by claudiaferrei    ###   ########.fr       */
+/*   Updated: 2026/11/03 12:06:12 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,13 @@
 
 void	print_status(t_coder	*coder, char	*status)
 {
+	int	is_over;
+
+	pthread_mutex_lock(&coder->config->simulation_lock);
+	is_over = coder->config->simulation_over;
+	pthread_mutex_unlock(&coder->config->simulation_lock);
 	pthread_mutex_lock(&coder->config->print_lock);
-	if (!coder->config->simulation_over || strcmp(status, "burned out") == 0)
+	if (!is_over || strcmp(status, "burned out") == 0)
 		printf("%ld %ld %s\n",
 			get_time_in_ms() - coder->config->start_time, coder->id, status);
 	pthread_mutex_unlock(&coder->config->print_lock);

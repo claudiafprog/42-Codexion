@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 13:44:38 by clferrei          #+#    #+#             */
-/*   Updated: 2026/11/02 22:07:33 by claudiaferrei    ###   ########.fr       */
+/*   Updated: 2026/11/03 13:06:35 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,10 +94,9 @@ int		clean_input(int argc, char	**argv, t_config *config);
 /* scheduler / time */
 long	get_time_in_ms(void);
 long	get_next_ticket(t_config	*config);
-int		heap_append_scheduled(t_heap	*heap, t_node	*new_node,
-			t_config	*config);
-t_node	*heap_pop(t_heap	*heap, t_config	*config);
 void	heap_prio_remove(t_heap	*heap, t_coder	*coder, t_config	*config);
+int		heap_append_scheduled(
+			t_heap	*heap, t_node	*new_node, t_config	*config);
 /* init */
 t_node	*init_waiting_line(t_coder	*coder);
 int		init_all(t_data	*data, int argc, char	**argv);
@@ -118,5 +117,7 @@ int		has_local_priority(t_coder	*coder);
 void	*coder_routine(void *arg);
 void	release_dongles(t_coder	*coder);
 void	try_to_claim_dongles(t_coder	*coder);
-/* coders */
+/* dongles */
+int		are_dongles_available(t_coder	*coder);
+void	take_dongles(t_coder	*coder);
 #endif

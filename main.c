@@ -6,7 +6,7 @@
 /*   By: clferrei <clferrei@student.42belgium.be    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/12 14:59:21 by clferrei          #+#    #+#             */
-/*   Updated: 2026/11/02 15:29:41 by clferrei         ###   ########.fr       */
+/*   Updated: 2026/11/03 12:29:59 by clferrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ int	main(int argc, char	**argv)
 	create_threads(&data);
 	simulation_monitor(&data);
 	join_threads(&data);
+	usleep(10000);
 	free_all(&data, data.config.number_of_coders);
 	return (0);
 }
